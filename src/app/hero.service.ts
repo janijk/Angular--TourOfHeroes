@@ -1,7 +1,6 @@
 import { Injectable } from '@angular/core';
 import { Observable, of } from 'rxjs';
 import { Hero } from './hero';
-import { HEROES } from './mock-heroes';
 import { MessageService } from './message.service';
 import { HttpClient, HttpHeaders } from '@angular/common/http';
 import { catchError, map, tap } from 'rxjs/operators';
@@ -11,6 +10,8 @@ import { catchError, map, tap } from 'rxjs/operators';
 })
 export class HeroService {
   private heroesUrl = 'api/heroes';  // URL to web api
+  private powersUrl = 'api/powers';  // URL to web api
+
   private log(message: string) {
     this.messageService.add(`HeroService: ${message}`);
   }
@@ -19,8 +20,7 @@ export class HeroService {
   };
     /**
    * Handle Http operation that failed.
-   * Let the app continue.
-   *
+   * Let the app continue.   *
    * @param operation - name of the operation that failed
    * @param result - optional value to return as the observable result
    */
@@ -37,8 +37,14 @@ export class HeroService {
 
   constructor(
     private http: HttpClient,
-    private messageService: MessageService) { }    
- 
+    private messageService: MessageService) { }
+    
+  getPowers(): Observable<any[]>{
+    return this.http.get<any[]>(this.powersUrl).pipe(
+      tap(_=>this.log('fetch powers')),
+      catchError(this.handleError<any[]>('getPowers',[]))
+    )
+  } 
   getHeroes(): Observable<Hero[]> {    
     return this.http.get<Hero[]>(this.heroesUrl).pipe(
         tap(_=>this.log('fetched heroes')),
